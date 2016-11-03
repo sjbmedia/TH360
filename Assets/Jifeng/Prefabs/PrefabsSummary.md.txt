@@ -1,0 +1,65 @@
+#PREFABS USAGE
+
+##SoftVrEngine
+
+###CustomCanvas
+
+for holding ui element.
+
+in this demo,all ui elements are used by creating new from prefab.so the only way to add ui into game is that regists prefabs by CustomCanvas.cs
+
+###CustomEventSystem
+
+an gameobject for holding raycaster.
+
+###JfUtils
+
+for recording current camera.
+
+auto set paramenters which have not been set.
+
+###Overlay
+
+for drawing focusing flag.
+
+###SVECamera
+
+VR camera.
+
+##DemoSoftVr
+
+###ball
+
+used as game target in JfAgileDemo.
+
+###dice
+
+used as game target in JfDecryptionDemo.
+
+###LevelPrefabs_level1
+
+level 1 profile for JfDecryptionDemo.
+
+###LevelPrefabs_level2
+
+level 2 profile for JfDecryptionDemo.
+
+###menufail
+
+menu for showing game over.
+
+provides only one button which returns to JfEntryMenu scene.
+
+###menusuccess
+
+menu for showing game success.
+
+provides one button,the button also simply return to JfEntryMenu scene.
+
+###PlayButton
+
+start to play button.for entring JfDecryptionDemo or JfAgileDemo.
+
+###SpaceLevel_1
+
+level 1 profile for JfAgileDemo.

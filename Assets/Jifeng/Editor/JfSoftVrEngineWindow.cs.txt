@@ -1,0 +1,290 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+
+namespace Jifeng.SoftVrEngine
+{
+    public class JfSoftVrEngineWindow : EditorWindow
+    {
+        [MenuItem("Window/SoftVrEngine/Switch SDK",false,8001)]
+        static void AddWindow()
+        {
+            Rect wdr = new Rect(0, 0, 500, 500);
+            var main = (JfSoftVrEngineWindow)EditorWindow.GetWindowWithRect(
+                                typeof(JfSoftVrEngineWindow), wdr, true
+                                , "SoftVrEngine SDK Swicher");
+        }
+
+        public enum SDKType
+        {
+            Unknown,
+            SoftSDK,
+            MojingSDK,
+            Error,
+        }
+        private SDKType _currentsdk;
+        private SDKType currentsdk
+        {
+            get { return _currentsdk; }
+            set 
+            {
+                if(_currentsdk == value)
+                {
+                    return;
+                }
+                _currentsdk = value;
+                SdkTypeChanged();
+            }
+        }
+        private void SdkTypeChanged()
+        {
+            currentsdkinfo = getSdkDescription(_currentsdk);
+        }
+        private string currentsdkinfo;
+
+        private string    getSdkDescription(SDKType st)
+        {
+            switch(st)
+            {
+            case SDKType.Unknown:
+            return "Unknown";
+            case SDKType.SoftSDK:
+            return "SoftVrEngine";
+            case SDKType.MojingSDK:
+            return "baofeng mojing SDK";
+            default:
+            return "Error,not allowed to switch";
+            }
+        }
+
+        void    OnGUI()
+        {
+            GUILayout.Space(25);
+            GUILayout.Label("SoftVrEngine or baofeng mojing SDK"
+                                    , Utils.JfGUIStyle.LABEL_TEXT_STYLE);
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Current SDK");
+            GUILayout.Label(currentsdkinfo
+                                            , Utils.JfGUIStyle.LABEL_TEXT_STYLE
+                                            , GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
+            if(GUILayout.Button("Check SDK",GUILayout.ExpandWidth(true)))
+            {
+                currentsdk = CheckSdkType();
+            }
+
+            GUILayout.Space(25);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("SDKs on Disk", Utils.JfGUIStyle.LABEL_TEXT_STYLE);
+            if(GUILayout.Button("Force Reload SDK"))
+            {
+                _sdksOnDisk = null;
+            }
+            GUILayout.EndHorizontal();
+            List<SDKType> sdks = CheckSdkSupport();
+            int sdki = 0;
+            foreach(var v in sdks)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label((++sdki).ToString(),GUILayout.Width(80));
+                GUILayout.Label(getSdkDescription(v));
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(20);
+            GUILayout.Label("Switch Button will change sdk to another"
+                                        , Utils.JfGUIStyle.LABEL_TEXT_STYLE);
+            GUILayout.Label("if only SDK on disk,no need to switch"
+                                        , Utils.JfGUIStyle.LABEL_TEXT_STYLE);
+            GUILayout.Label("Undo ready.don't worry."
+                                        , Utils.JfGUIStyle.LABEL_TEXT_STYLE);
+            if(GUILayout.Button("Switch"))
+            {
+                if(currentsdk == SDKType.Unknown)
+                {
+                    this.RemoveNotification();
+                    this.ShowNotification(
+                                new GUIContent("Check SDK first please"));
+                }
+                if(CheckSdkSupport().Count < 2)
+                {
+                    this.RemoveNotification();
+                    this.ShowNotification(new GUIContent("can not find SDK"));
+                }
+                else
+                {
+                    SwitchSdkFrom(currentsdk);
+                }
+            }
+        }
+
+        void    OnFocus()
+        {
+            currentsdk = SDKType.Unknown;
+            SdkTypeChanged();
+        }
+        void    LoLostFocus()
+        {
+
+        }
+
+        // which sdk are we using
+        private SDKType CheckSdkType()
+        {
+            var sdktype = SDKType.Unknown;
+            var mjHead = GameObject.FindObjectsOfType<MojingVRHead>();
+            var mjOver = GameObject.FindObjectsOfType<SetOverlay>();
+            var seHead = GameObject.FindObjectsOfType<JfVrHead>();
+            var seOver = GameObject.FindObjectsOfType<JfViewCenter>();
+
+            if (mjHead.Length == 1 && mjOver.Length == 1
+                                && seHead.Length == 0 && seOver.Length == 0)
+            {
+                sdktype = SDKType.MojingSDK;
+            }
+            else if (mjHead.Length == 0 && mjOver.Length == 0
+                                && seHead.Length == 1 && seOver.Length == 1)
+            {
+                sdktype = SDKType.SoftSDK;
+            }
+            else
+            {
+                sdktype = SDKType.Error;
+            }
+            return sdktype;
+        }
+
+        private static List<SDKType> _sdksOnDisk = new List<SDKType>();
+        // the sdks on disk
+        private List<SDKType>   CheckSdkSupport()
+        {
+            if(_sdksOnDisk != null)
+            {
+                return _sdksOnDisk;
+            }
+            var sds = new List<SDKType>();
+            string mjStart = "Assets/MojingSDK/Prefabs/";
+            var mjKeys = new string[] {
+                "MojingMain.prefab",
+                "IntegrateInputManager.prefab",
+                "Overlay.prefab",
+            };
+            int mjcount = 0;
+            string jfStart = "Assets/Jifeng/SoftVrEngine/Prefabs/";
+            var jfKeys = new string[]{
+                "SVECamera.prefab",
+                "Overlay.prefab",
+            };
+            int jfcount = 0;
+
+            var alls = AssetDatabase.GetAllAssetPaths();
+            foreach (var s in alls)
+            {
+                if (!s.EndsWith(".prefab"))
+                {
+                    continue;
+                }
+                if(s.StartsWith(mjStart))
+                {
+                    foreach(string k in mjKeys)
+                    {
+                        if(s.EndsWith(k))
+                        {
+                            ++mjcount;
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                if(s.StartsWith(jfStart))
+                {
+                    foreach(var k in jfKeys)
+                    {
+                        if(s.EndsWith(k))
+                        {
+                            ++jfcount;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(jfcount == jfKeys.Length)
+            {
+                sds.Add(SDKType.SoftSDK);
+            }
+            if(mjcount == mjKeys.Length)
+            {
+                sds.Add(SDKType.MojingSDK);
+            }
+            _sdksOnDisk = sds;
+            return _sdksOnDisk;
+        }
+
+        private void    SwitchSdkFrom(SDKType sdt)
+        {
+            if(sdt == SDKType.MojingSDK)
+            {
+                SwitchToSoft();
+            }
+            else if(sdt == SDKType.SoftSDK)
+            {
+                SwitchToMojing();
+            }
+        }
+
+        private void SwitchToMojing()
+        {
+            // remove
+            var svec = GameObject.Find("SVECamera");
+            var sveo = GameObject.Find("Overlay");
+            Undo.DestroyObjectImmediate(svec);
+            Undo.DestroyObjectImmediate(sveo);
+            // add
+            string path = "Assets/MojingSDK/Prefabs/";
+            string tail = ".prefab";
+            string[] keys = new string[]
+                {
+                    "MojingMain",
+                    "IntegrateInputManager",
+                    "Overlay",
+                };
+            foreach(var pa in keys)
+            {
+                var pname = path + pa + tail;
+                var gop = AssetDatabase.LoadAssetAtPath(pname, typeof(Object));
+                var go = PrefabUtility.InstantiatePrefab(gop);
+                //go.name = pa;
+                Undo.RegisterCreatedObjectUndo(go, pa);
+            }
+        }
+
+        private void SwitchToSoft()
+        {
+            // remove
+            var mjmain = GameObject.Find("MojingMain");
+            if (mjmain) Undo.DestroyObjectImmediate(mjmain);
+            var mjover = GameObject.Find("Overlay");
+            if (mjover) Undo.DestroyObjectImmediate(mjover);
+            var mjinput = GameObject.Find("IntegrateInputManager");
+            if (mjinput) Undo.DestroyObjectImmediate(mjinput);
+
+            string paht = "Assets/Jifeng/SoftVrEngine/Prefabs/";
+            string tail = ".prefab";
+            string[] keys = new string[]
+                {
+                    "SVECamera",
+                    "Overlay",
+                };
+            foreach(var pa in keys)
+            {
+                var pname = paht + pa + tail;
+                var gop = AssetDatabase.LoadAssetAtPath(pname, typeof(object));
+                var go = PrefabUtility.InstantiatePrefab(gop);
+                Undo.RegisterCreatedObjectUndo(go, pa);
+            }
+        }
+    }
+    
+}

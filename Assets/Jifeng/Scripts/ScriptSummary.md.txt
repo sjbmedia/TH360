@@ -1,0 +1,260 @@
+
+#CODE STRUCT
+
+##namespaces
+
+* Utils
+
+  many core session for UI.designed for reusing.
+
+* SoftVrEngine
+
+  the core session for showing.
+
+* DemoSoftVr
+
+  the game demo.
+
+#SCRIPT SUMMARY
+
+##utils
+
+	ColorTheSelectable.cs
+
+ * operates shader parameters.
+ * change shader parameter by <code>SetFloat/SetTexture/etc</code> is not a good design.consider do it like this.
+ * it co-works with <code>MulLayerColor.shader</code>.but any shader support the parameters will be ok.
+ 
+	CustomButton.cs
+
+ * 3d button implement.
+ * process the button visible effects.
+
+	JfDrawLine.cs
+
+ * Draw line on screen.
+ * it is used for draw view center flag which is cross made of a vertical line and a horizontal line.
+
+	JfGUIStyle.cs
+
+ * text GUIStyle
+ * an text font used in inspector.
+ * make the text looks important.
+ 
+	JfRandomPick.cs
+
+ * give some int value,output a by random order.no duplicate.
+
+	JfRandomRange.cs
+
+ * give a range,output a random range.no duplicate.
+ 
+	JfRaycaster3D.cs
+
+ * the input source.raycaster find the watching focus.
+
+	JfSelectable.cs
+
+ * if a gameobject used as button or pickable object,it should have a JfSelectable component.
+
+	JfSelectableShader.cs
+
+ * an interface for how to operator MulLayerColor or parameter compatile shaders.
+
+	JfSelectableTarget.cs
+
+ * the operations can be performed on JfSelectable objects.
+
+	JfUndo.cs
+
+ * simple wrapper for use Undo.RecordObjects.
+
+	JfUtilsEnv.cs
+
+ * an instance script.other script can query camera by this instance.
+ * framework can set camera at suitable time,the other scripts do not care where the camera comes from,just simply use it.
+
+	MulLayerColor.shader
+
+ * IT'S A SHADER
+ * a shader provide 5 layers.color - mask - color -mask - color2
+ * see doc in JfSelectableShader.cs file.
+
+##SoftVrEngine
+
+###Scirpts
+
+	CustomCanvas.cs
+
+ * ui prefabs holder
+ * entry for calling to show ui
+
+	GameEnv.cs
+
+ * an interface script.other script can query UiRefer or level profile datas.
+ * level data profile prefabs holder.
+
+	JfEye.cs
+
+ * a script for identifying usage of camera.
+
+	JfSimulateInput.cs
+
+ * a C# script,not a MonoBehaviour
+ * used by JfVrHead,for process head move.
+
+	JfViewCenter.cs
+
+ * a script used by Overlay prefab.
+ * to draw focusing point
+
+	JfVrHead.cs
+
+ * logic position of vr camera.
+ * camera manager.
+
+###Editor
+
+	GameEnvEditor.cs
+
+ * an editor script
+ * remove UiRefer editable,instead,show a hint which says the object only can be set in other script.
+ * make a better view of level profile data
+
+	JfUtilsEnvEditor.cs
+
+ * disable camera editable.instead,give a hint message.
+
+##DemoSoftVr
+
+###Scripts
+
+	BackButton.cs
+
+ * a button for going back menu level.
+
+	ColorMaterialGallery.cs
+
+ * color material set,used by dice level editor,for better showing.
+ * will not use for game usage.
+
+	CreateBallSpace.cs
+
+ * used by JfAgileDemo，create the selectable game targets
+ * load level profile datas.
+
+	CreateDiceMesh.cs
+
+ * create a cube with special UV mapping which was created by this script.
+
+	CreateDiceWorld.cs
+
+ * used by JfDecryptionDemo，create the selectable game targets
+ * load level profile datas.
+
+	CustomTarget.cs
+
+ * used by JfDecryptionDemo,the real/direct manipulator who changes the status of selectable targets.
+ 
+	DemoMenuItem.cs
+ 
+ * create menu items under <code>Window/SoftVrEngine</code>.
+
+	DiceWall.cs
+
+ * load wall texture,then remove itself.
+ * wall is used in JfDecryptionDemo for decorating.
+
+	EarthLike.cs
+
+ * simulate reference ball view effect which likes earth rotation.
+ * used in JfAgileDemo for decorating.
+
+	FLevelView.cs
+
+ * used for storing level profile data.
+ 
+	FPointView.cs
+
+ * used for storing level profile data.
+
+	FWallView.cs
+
+ * used for storing level profile data.
+
+	HitSceneManager.cs
+
+ * used in JfAgileDemo
+ * controller of creating current target
+
+	HitTarget.cs
+
+ * used by JfAgileDemo,the real/direct manipulator who changes the status of selectable targets.
+
+	LevelNumber.cs
+
+ * used in JfEntryMenu,for showing current level number.
+
+	LevelNumberButton.cs
+
+ * used for changing current level number
+ * supports both add and dec.
+
+	Playbutton.cs
+
+ * used in JfEntryMenu scene,for starting to play a level.
+
+	SpaceLevelView.cs
+
+ * used for storing level profile data
+
+	SpacePointView.cs
+
+ * used for storing level profile data
+
+	StartupEnvs.cs
+
+ * an delay operator
+ * setup necessary object which is used for parameter for JfUtilsEnv and GameEnv
+
+
+###Editor
+
+	FLevelViewEditor.cs
+
+ * editor script for editing level profile.
+ * used for editing JfDecryptionDemo level data.
+
+	FPointViewEditor.csc
+
+ * editor script for editing level profile.
+ * used for editing JfDecryptionDemo level data.
+
+	FWallViewEditor.cs
+
+ * editor script for editing level profile
+ * used for editing JfDecryptionDemo level data.
+
+	JfSoftVrEngineWindow.cs
+
+ * a place holder for window which switches SDK.
+
+	JfSoftVrEngineWindow.cs.txt
+
+ * real logic for SDK window which switches SDK between SoftVrEngine and baofeng mojing SDK.
+ * NOTE,TO USE IT,YOU NEED BAOFENG MOJING SDK.THEN RENAME THIS FILE TO SCRIPT FILE,you may need replace the old file.
+
+	SpaceLevelViewEditor.cs
+
+ * editor script for editing level profile
+ * used for editing JfAgileDemo level data.
+
+	SpacePointViewEditor.cs
+
+ * editor script for editing level profile
+ * used for editing JfAgileDemo level data
+
+	ToolsSupport.cs
+
+ * used for controlling tools.
+ * while editing JfDecryptionDemo level data,only rotation is allowed.
